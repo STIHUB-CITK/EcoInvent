@@ -70,21 +70,21 @@ export const worldEnvironmentDayTheme = "Ending Plastic Pollution";
 
 // Updated collaborator data
 export const collaboratorsData = [
-  { 
-    name: 'STIHUB - CIT Kokrajhar', 
-    logoSrc: 'https://stihub.cit.ac.in/wp-content/uploads/2024/03/cropped-Stihub-CIT-Logo-landscape-wide.png', 
+  {
+    name: 'STIHUB - CIT Kokrajhar',
+    logoSrc: 'https://stihub.cit.ac.in/assets/images/dst-logo-nobg.png.webp',
     hint: 'STIHUB CIT Kokrajhar logo',
     url: 'https://stihub.cit.ac.in/'
   },
-  { 
-    name: 'STPI', 
-    logoSrc: 'https://upload.wikimedia.org/wikipedia/en/c/cb/STPI_Logo.png', 
-    hint: 'STPI logo' 
+  {
+    name: 'STPI',
+    logoSrc: 'https://stpi.in/themes/stpi/images/logo.png',
+    hint: 'STPI logo'
   },
-  { 
-    name: 'SmartEdge', 
-    logoSrc: 'https://smartedge.work/wp-content/uploads/2020/04/smartedgelogo-big.png', 
-    hint: 'SmartEdge logo' 
+  {
+    name: 'SmartEdge',
+    logoSrc: 'https://smartedge.work/wp-content/uploads/2020/04/smartedgelogo-big.png',
+    hint: 'SmartEdge logo'
   },
   // Removed Startup Assam and EDP Cell Club as per new info, can be re-added if needed.
 ];
@@ -115,7 +115,7 @@ export const pastProgramsData = [
     imageHint: 'forum discussion',
     tags: ['Circular Economy', 'Waste Reduction', 'Business Models'],
   },
-   {
+  {
     id: '4',
     title: 'OceanSavers Initiative 2021',
     description: 'Projects aimed at combating plastic pollution in marine environments and protecting ocean biodiversity.',
