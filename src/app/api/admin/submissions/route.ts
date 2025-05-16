@@ -8,31 +8,42 @@ import fs from 'fs';
 const dbDir = path.join(process.cwd(), 'db');
 const dbPath = path.join(dbDir, 'ecoinvent.db');
 
-let db: Database.Database;
+interface ConnectDbResult {
+  db: Database.Database | null;
+  dbNotFound: boolean;
+}
 
-function connectDb() {
+function connectDb(): ConnectDbResult {
   if (!fs.existsSync(dbDir)) {
-    console.warn(`Database directory ${dbDir} does not exist. Admin panel might not find data.`);
-    return null;
+    console.warn(`Database directory ${dbDir} does not exist. Admin panel will show no data as the directory is missing.`);
+    return { db: null, dbNotFound: true };
   }
   if (!fs.existsSync(dbPath)) {
-    console.warn(`Database file ${dbPath} does not exist. Admin panel might not find data.`);
-    return null;
+    console.warn(`Database file ${dbPath} does not exist. Admin panel will show no data as the file is missing.`);
+    return { db: null, dbNotFound: true };
   }
   try {
-    db = new Database(dbPath, { readonly: true }); // Open in read-only mode
-    console.log('Connected to SQLite database for reading submissions at', dbPath);
-    return db;
+    const instance = new Database(dbPath, { readonly: true });
+    // console.log('Connected to SQLite database for reading submissions at', dbPath);
+    return { db: instance, dbNotFound: false };
   } catch (error) {
     console.error('Failed to connect to SQLite database for reading:', error);
-    return null;
+    return { db: null, dbNotFound: false }; // dbNotFound is false because it's a connection error, not a file not found error.
   }
 }
 
 export async function GET(request: NextRequest) {
-  const currentDb = connectDb();
+  const { db: currentDb, dbNotFound } = connectDb();
+
+  if (dbNotFound) {
+    // If the DB file/dir specifically wasn't found, it's likely not initialized yet.
+    // Return empty submissions, which is a valid state for the frontend to handle.
+    return NextResponse.json({ submissions: [] }, { status: 200 });
+  }
+
   if (!currentDb) {
-    return NextResponse.json({ message: 'Database connection failed or database file not found.' }, { status: 500 });
+    // This implies a connection error other than the file not being found (e.g., corrupted file, permissions).
+    return NextResponse.json({ message: 'Database connection failed.' }, { status: 500 });
   }
 
   try {
@@ -65,14 +76,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: 'Failed to fetch submissions.', error: errorMessage }, { status: 500 });
   } finally {
     if (currentDb) {
-      // currentDb.close(); // For read-only, it's less critical to close immediately, but good practice
+      currentDb.close();
       // console.log('Database connection closed for reading submissions.');
-      // better-sqlite3 docs suggest that for read-only operations, connection can be kept open or closed as needed.
-      // For serverless functions that may re-use connections, this might be fine.
-      // If it's a new connection per request, .close() is important.
-      // Since connectDb() is called per request here, we should close.
-      // However, Vercel might complain about fs operations after response.
-      // For simplicity in this prototype, let's leave it open or manage it via a shared instance in a real app.
     }
   }
 }
