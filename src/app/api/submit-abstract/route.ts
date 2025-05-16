@@ -33,7 +33,7 @@ if (!fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true });
 }
 const dbPath = path.join(dbDir, 'ecoinvent.db');
-let db;
+let db: Database.Database | undefined;
 
 try {
   db = new Database(dbPath); // { verbose: console.log } can be added for debugging
@@ -148,12 +148,12 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error processing submission:', error);
     if (error instanceof z.ZodError) {
-        return NextResponse.json({ message: 'Invalid submission data.', errors: error.flatten().fieldErrors }, { status: 400 });
+      return NextResponse.json({ message: 'Invalid submission data.', errors: error.flatten().fieldErrors }, { status: 400 });
     }
     // Check if it's a better-sqlite3 error
     if (error && typeof error === 'object' && 'code' in error) {
-         // Handle specific SQLite errors if needed, e.g., UNIQUE constraint failed
-        return NextResponse.json({ message: `Database error: ${ (error as Error).message }` }, { status: 500 });
+      // Handle specific SQLite errors if needed, e.g., UNIQUE constraint failed
+      return NextResponse.json({ message: `Database error: ${(error as unknown as Error).message}` }, { status: 500 });
     }
     return NextResponse.json({ message: 'An unexpected error occurred on the server.' }, { status: 500 });
   }
