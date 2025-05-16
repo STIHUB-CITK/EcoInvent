@@ -85,7 +85,7 @@ export function AbstractSubmissionForm() {
   const participationType = form.watch("participationType");
 
   async function onSubmit(data: SubmissionFormValues) {
-    form.formState.isSubmitting = true;
+    // form.formState.isSubmitting is read-only and managed by react-hook-form
     try {
       const response = await fetch('/api/submit-abstract', {
         method: 'POST',
@@ -116,9 +116,8 @@ export function AbstractSubmissionForm() {
         description: "Could not connect to the server. Please check your internet connection and try again.",
         variant: "destructive",
       });
-    } finally {
-       form.formState.isSubmitting = false;
     }
+    // form.formState.isSubmitting is automatically set to false by react-hook-form
   }
 
   return (
@@ -384,5 +383,3 @@ export function AbstractSubmissionForm() {
     </Card>
   );
 }
-
-    
