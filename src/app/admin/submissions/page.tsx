@@ -13,10 +13,20 @@ import {
   TableCell,
   TableCaption,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Icons } from '@/components/icons';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { format } from 'date-fns'; // For date formatting
 
 // Define the type for a single submission, matching the API response
@@ -42,6 +52,8 @@ export default function AdminSubmissionsPage() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
+  const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -82,7 +94,6 @@ export default function AdminSubmissionsPage() {
   };
 
   const handleExportData = () => {
-    // Basic CSV export functionality (client-side, may not be suitable for very large datasets)
     if (submissions.length === 0) {
       toast({ title: 'No Data', description: 'No submissions to export.', variant: 'destructive' });
       return;
@@ -103,7 +114,7 @@ export default function AdminSubmissionsPage() {
         s.mobileNumber,
         s.email,
         s.teamName ? `"${s.teamName.replace(/"/g, '""')}"` : '',
-        s.teamMemberCount,
+        s.participationType === 'team' ? s.teamMemberCount + 1 : 1, // Adjust team member count for solo vs team as per submission form
         `"${s.concept.replace(/"/g, '""')}"`,
         `"${s.objective.replace(/"/g, '""')}"`,
         `"${s.requirements.replace(/"/g, '""')}"`,
@@ -131,6 +142,10 @@ export default function AdminSubmissionsPage() {
     }
   };
 
+  const handleViewSubmission = (submission: Submission) => {
+    setSelectedSubmission(submission);
+    setIsViewDialogOpen(true);
+  };
 
   if (!isMounted) {
     return <div className="flex justify-center items-center min-h-screen"><Icons.RefreshCw className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -140,85 +155,164 @@ export default function AdminSubmissionsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <Card className="shadow-xl">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle className="text-3xl font-bold text-primary">Admin Dashboard</CardTitle>
-            <CardDescription>View and manage EcoInvent submissions.</CardDescription>
-          </div>
-          <div className="space-x-2">
-             <Button onClick={handleExportData} variant="outline">
-              <Icons.FileText className="mr-2 h-4 w-4" />
-              Export Data (CSV)
-            </Button>
-            <Button onClick={handleLogout} variant="destructive">
-              <Icons.LogOut className="mr-2 h-4 w-4" />
-              Logout
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="flex justify-center items-center py-10">
-              <Icons.RefreshCw className="h-8 w-8 animate-spin text-primary" />
-              <p className="ml-4 text-muted-foreground">Loading submissions...</p>
+    <>
+      <div className="container mx-auto py-8">
+        <Card className="shadow-xl">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-3xl font-bold text-primary">Admin Dashboard</CardTitle>
+              <CardDescription>View and manage EcoInvent submissions.</CardDescription>
             </div>
-          ) : submissions.length === 0 ? (
-            <div className="text-center py-10">
-              <Icons.HelpCircle className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-xl text-muted-foreground">No submissions found.</p>
+            <div className="space-x-2">
+               <Button onClick={handleExportData} variant="outline">
+                <Icons.FileText className="mr-2 h-4 w-4" />
+                Export Data (CSV)
+              </Button>
+              <Button onClick={handleLogout} variant="destructive">
+                <Icons.LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </Button>
             </div>
-          ) : (
-            <Table>
-              <TableCaption>A list of all abstract submissions.</TableCaption>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[50px]">ID</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Contact Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Team Name</TableHead>
-                  <TableHead className="text-center">Members</TableHead>
-                  <TableHead>Concept (Short)</TableHead>
-                  <TableHead>Submitted At</TableHead>
-                  <TableHead className="text-center">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {submissions.map((submission) => (
-                  <TableRow key={submission.id}>
-                    <TableCell className="font-medium">{submission.id}</TableCell>
-                    <TableCell>
-                      <Badge variant={submission.participationType === 'team' ? 'default' : 'secondary'}>
-                        {submission.participationType}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{submission.contactPersonName}</TableCell>
-                    <TableCell>{submission.email}</TableCell>
-                    <TableCell>{submission.teamName || 'N/A'}</TableCell>
-                    <TableCell className="text-center">
-                      {submission.participationType === 'team' ? submission.teamMemberCount + 1 : 1}
-                    </TableCell>
-                    <TableCell title={submission.concept}>
-                      {submission.concept.length > 50 ? `${submission.concept.substring(0, 50)}...` : submission.concept}
-                    </TableCell>
-                    <TableCell>
-                      {format(new Date(submission.submissionTimestamp), 'PPpp')}
-                    </TableCell>
-                    <TableCell className="text-center">
-                       {/* Placeholder for actions like view details */}
-                       <Button variant="ghost" size="sm" onClick={() => alert(`View details for submission ID: ${submission.id}\nFull Concept: ${submission.concept}\nObjective: ${submission.objective}\nRequirements: ${submission.requirements}\nTech Apps: ${submission.technicalApplications}\nSlides: ${submission.slidesLink}\nMobile: ${submission.mobileNumber}` )}>
-                         View
-                       </Button>
-                    </TableCell>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="flex justify-center items-center py-10">
+                <Icons.RefreshCw className="h-8 w-8 animate-spin text-primary" />
+                <p className="ml-4 text-muted-foreground">Loading submissions...</p>
+              </div>
+            ) : submissions.length === 0 ? (
+              <div className="text-center py-10">
+                <Icons.HelpCircle className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <p className="text-xl text-muted-foreground">No submissions found.</p>
+              </div>
+            ) : (
+              <Table>
+                <TableCaption>A list of all abstract submissions.</TableCaption>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[50px]">ID</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Contact Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Team Name</TableHead>
+                    <TableHead className="text-center">Total Members</TableHead>
+                    <TableHead>Concept (Short)</TableHead>
+                    <TableHead>Submitted At</TableHead>
+                    <TableHead className="text-center">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+                </TableHeader>
+                <TableBody>
+                  {submissions.map((submission) => (
+                    <TableRow key={submission.id}>
+                      <TableCell className="font-medium">{submission.id}</TableCell>
+                      <TableCell>
+                        <Badge variant={submission.participationType === 'team' ? 'default' : 'secondary'}>
+                          {submission.participationType}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{submission.contactPersonName}</TableCell>
+                      <TableCell>{submission.email}</TableCell>
+                      <TableCell>{submission.teamName || 'N/A'}</TableCell>
+                      <TableCell className="text-center">
+                        {submission.participationType === 'team' ? submission.teamMemberCount + 1 : 1}
+                      </TableCell>
+                      <TableCell title={submission.concept}>
+                        {submission.concept.length > 50 ? `${submission.concept.substring(0, 50)}...` : submission.concept}
+                      </TableCell>
+                      <TableCell>
+                        {format(new Date(submission.submissionTimestamp), 'PPpp')}
+                      </TableCell>
+                      <TableCell className="text-center">
+                         <Button variant="ghost" size="sm" onClick={() => handleViewSubmission(submission)}>
+                           View
+                         </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {selectedSubmission && (
+        <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+          <DialogContent className="sm:max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Submission Details - ID: {selectedSubmission.id}</DialogTitle>
+              <DialogDescription>
+                Detailed information for submission by {selectedSubmission.contactPersonName}.
+              </DialogDescription>
+            </DialogHeader>
+            <ScrollArea className="max-h-[60vh] pr-4">
+              <div className="grid gap-4 py-4 text-sm">
+                <div className="grid grid-cols-[150px_1fr] items-center gap-2">
+                  <span className="font-semibold text-muted-foreground">Participation Type:</span>
+                  <Badge variant={selectedSubmission.participationType === 'team' ? 'default' : 'secondary'}>
+                    {selectedSubmission.participationType}
+                  </Badge>
+                </div>
+                {selectedSubmission.participationType === 'team' && selectedSubmission.teamName && (
+                  <div className="grid grid-cols-[150px_1fr] items-center gap-2">
+                    <span className="font-semibold text-muted-foreground">Team Name:</span>
+                    <span>{selectedSubmission.teamName}</span>
+                  </div>
+                )}
+                <div className="grid grid-cols-[150px_1fr] items-center gap-2">
+                  <span className="font-semibold text-muted-foreground">Contact Person:</span>
+                  <span>{selectedSubmission.contactPersonName}</span>
+                </div>
+                <div className="grid grid-cols-[150px_1fr] items-center gap-2">
+                  <span className="font-semibold text-muted-foreground">Email:</span>
+                  <a href={`mailto:${selectedSubmission.email}`} className="text-primary hover:underline">{selectedSubmission.email}</a>
+                </div>
+                <div className="grid grid-cols-[150px_1fr] items-center gap-2">
+                  <span className="font-semibold text-muted-foreground">Mobile Number:</span>
+                  <span>{selectedSubmission.mobileNumber}</span>
+                </div>
+                <div className="grid grid-cols-[150px_1fr] items-center gap-2">
+                  <span className="font-semibold text-muted-foreground">Total Members:</span>
+                  <span>{selectedSubmission.participationType === 'team' ? selectedSubmission.teamMemberCount + 1 : 1}</span>
+                </div>
+                
+                <div className="mt-4 pt-4 border-t">
+                  <h4 className="font-semibold text-muted-foreground mb-2">Concept:</h4>
+                  <p className="whitespace-pre-wrap bg-muted/50 p-3 rounded-md">{selectedSubmission.concept}</p>
+                </div>
+                <div className="mt-2 pt-2 border-t">
+                  <h4 className="font-semibold text-muted-foreground mb-2">Objective:</h4>
+                  <p className="whitespace-pre-wrap bg-muted/50 p-3 rounded-md">{selectedSubmission.objective}</p>
+                </div>
+                <div className="mt-2 pt-2 border-t">
+                  <h4 className="font-semibold text-muted-foreground mb-2">Requirements:</h4>
+                  <p className="whitespace-pre-wrap bg-muted/50 p-3 rounded-md">{selectedSubmission.requirements}</p>
+                </div>
+                <div className="mt-2 pt-2 border-t">
+                  <h4 className="font-semibold text-muted-foreground mb-2">Technical Applications:</h4>
+                  <p className="whitespace-pre-wrap bg-muted/50 p-3 rounded-md">{selectedSubmission.technicalApplications}</p>
+                </div>
+                
+                <div className="mt-2 pt-2 border-t grid grid-cols-[150px_1fr] items-center gap-2">
+                  <span className="font-semibold text-muted-foreground">Slides Link:</span>
+                  <a href={selectedSubmission.slidesLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline truncate">
+                    {selectedSubmission.slidesLink}
+                  </a>
+                </div>
+                <div className="mt-2 pt-2 border-t grid grid-cols-[150px_1fr] items-center gap-2">
+                  <span className="font-semibold text-muted-foreground">Submitted At:</span>
+                  <span>{format(new Date(selectedSubmission.submissionTimestamp), 'PPPppp')}</span>
+                </div>
+              </div>
+            </ScrollArea>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Close</Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   );
 }
