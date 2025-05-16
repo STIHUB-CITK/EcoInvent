@@ -44,7 +44,7 @@ export default function HomePage() {
           {/* Right Column: Image */}
           <div className="hidden md:flex justify-center items-center">
             <Image
-              src="https://placehold.co/500x500.png" 
+              src="https://images.pexels.com/photos/1072824/pexels-photo-1072824.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
               alt="Innovative environmental solutions showcase"
               width={500}
               height={500}
@@ -80,7 +80,7 @@ export default function HomePage() {
           <CarouselNext />
         </Carousel>
       </section>
-      
+
       <CollaboratorsSection />
 
       <section className="text-center py-16 bg-card rounded-xl shadow-xl hover:shadow-2xl transition-shadow duration-300 ease-in-out">
