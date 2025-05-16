@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Icons } from "@/components/icons";
 import type { Metadata } from 'next';
@@ -39,7 +40,7 @@ const guidelines = [
   },
   {
     title: "Timeline & Key Dates",
-    icon: "CalendarDays", // Placeholder, CalendarDays is not in Icons. Assuming HelpCircle for now.
+    icon: "CalendarDays", // This icon name doesn't exist in Icons object, will fallback to HelpCircle
     points: [
       "Registration Opens: [Date]",
       "Abstract Submission Deadline: [Date]",
@@ -62,7 +63,7 @@ export default function GuidelinesPage() {
 
       <div className="grid md:grid-cols-2 gap-6">
         {guidelines.map((section) => {
-          const IconComponent = Icons[section.icon as keyof typeof Icons || "HelpCircle"];
+          const IconComponent = Icons[section.icon as keyof typeof Icons] || Icons.HelpCircle;
           return (
             <Card key={section.title} className="shadow-lg">
               <CardHeader className="flex flex-row items-center space-x-3">
