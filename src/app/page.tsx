@@ -1,6 +1,7 @@
 
+import Image from "next/image";
 import { CategoryCard } from "@/components/sections/CategoryCard";
-import { CollaboratorsSection } from "@/components/sections/CollaboratorsSection"; // Added
+import { CollaboratorsSection } from "@/components/sections/CollaboratorsSection";
 import { ideathonCategories, worldEnvironmentDayTheme, siteConfig } from "@/config/site";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -16,27 +17,42 @@ import {
 export default function HomePage() {
   return (
     <div className="space-y-12">
-      <section className="text-center py-20 md:py-28 bg-gradient-to-br from-primary/10 via-background to-accent/10 rounded-xl shadow-xl">
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-primary">
-          {siteConfig.name}
-        </h1>
-        <p className="mt-4 text-lg sm:text-xl text-foreground/80 max-w-2xl mx-auto">
-          {siteConfig.description}
-        </p>
-        <p className="mt-8 text-2xl md:text-3xl font-semibold text-primary">
-          2025 World Environment Day Theme: <span className="text-accent font-bold">{worldEnvironmentDayTheme}</span>
-        </p>
-        <div className="mt-10 flex flex-col sm:flex-row justify-center items-center gap-4">
-          <Button asChild size="lg" className="shadow-md hover:shadow-lg transition-shadow">
-            <Link href="/submit-abstract">
-              Submit Your Idea <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
-          </Button>
-          <Button asChild variant="outline" size="lg" className="shadow-md hover:shadow-lg transition-shadow">
-            <Link href="/guidelines">
-              View Guidelines
-            </Link>
-          </Button>
+      {/* Revamped Hero Section */}
+      <section className="py-16 md:py-20 bg-background">
+        <div className="grid md:grid-cols-2 gap-10 lg:gap-16 items-center">
+          {/* Left Column: Text Content */}
+          <div className="text-left">
+            <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl md:text-6xl">
+              Innovate for a <span className="text-primary">Greener Future</span>
+            </h1>
+            <p className="mt-6 text-lg leading-relaxed text-foreground/80 sm:text-xl max-w-xl">
+              Join {siteConfig.name}'s 2025 Ideathon, focused on the critical theme of <span className="font-semibold text-accent">{worldEnvironmentDayTheme}</span>. Submit your pioneering ideas and help shape a sustainable world.
+            </p>
+            <div className="mt-10 flex flex-col sm:flex-row items-start gap-4">
+              <Button asChild size="lg" className="shadow-md hover:shadow-lg transition-shadow">
+                <Link href="/submit-abstract">
+                  Submit Your Idea <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="shadow-md hover:shadow-lg transition-shadow">
+                <Link href="/guidelines">
+                  View Guidelines
+                </Link>
+              </Button>
+            </div>
+          </div>
+          {/* Right Column: Image */}
+          <div className="hidden md:flex justify-center items-center">
+            <Image
+              src="https://placehold.co/500x500.png" 
+              alt="Innovative environmental solutions showcase"
+              width={500}
+              height={500}
+              className="rounded-xl shadow-2xl object-cover"
+              data-ai-hint="environmental technology innovation"
+              priority
+            />
+          </div>
         </div>
       </section>
 
@@ -65,17 +81,6 @@ export default function HomePage() {
         </Carousel>
       </section>
       
-      {/* <section> // This section seems redundant if carousel is already showing categories. Consider removing or repurposing.
-        <h2 className="text-3xl font-bold text-center mb-8 text-primary">
-          Ideathon Categories
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {ideathonCategories.map((category) => (
-            <CategoryCard key={category.name} category={category} />
-          ))}
-        </div>
-      </section> */}
-
       <CollaboratorsSection />
 
       <section className="text-center py-16 bg-card rounded-xl shadow-xl hover:shadow-2xl transition-shadow duration-300 ease-in-out">

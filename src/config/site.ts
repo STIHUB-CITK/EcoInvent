@@ -68,11 +68,25 @@ export const ideathonCategories: IdeathonCategory[] = [
 
 export const worldEnvironmentDayTheme = "Ending Plastic Pollution";
 
-// Data for collaborators - you should replace these with actual collaborator info and logos
+// Updated collaborator data
 export const collaboratorsData = [
-  { name: 'Startup Assam', logoSrc: 'https://startup.assam.gov.in/wp-content/themes/startupassam/images/logo.png', hint: 'company logo' },
-  { name: 'Smart Egde', logoSrc: 'https://smartedge.work/wp-content/uploads/2020/04/smartedgelogo-big.png', hint: 'organization logo' },
-  { name: 'EDP Cell Club', logoSrc: 'https://placehold.co/200x100.png?text=Sustain+Solutions', hint: 'corporate logo' },
+  { 
+    name: 'STIHUB - CIT Kokrajhar', 
+    logoSrc: 'https://stihub.cit.ac.in/wp-content/uploads/2024/03/cropped-Stihub-CIT-Logo-landscape-wide.png', 
+    hint: 'STIHUB CIT Kokrajhar logo',
+    url: 'https://stihub.cit.ac.in/'
+  },
+  { 
+    name: 'STPI', 
+    logoSrc: 'https://upload.wikimedia.org/wikipedia/en/c/cb/STPI_Logo.png', 
+    hint: 'STPI logo' 
+  },
+  { 
+    name: 'SmartEdge', 
+    logoSrc: 'https://smartedge.work/wp-content/uploads/2020/04/smartedgelogo-big.png', 
+    hint: 'SmartEdge logo' 
+  },
+  // Removed Startup Assam and EDP Cell Club as per new info, can be re-added if needed.
 ];
 
 // Data for gallery page - replace with actual past program details and images
