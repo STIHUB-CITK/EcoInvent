@@ -53,7 +53,7 @@ const submissionFormSchema = z.object({
   }
 });
 
-type SubmissionFormValues = z.infer<typeof submissionFormSchema>;
+export type SubmissionFormValues = z.infer<typeof submissionFormSchema>;
 
 const defaultValues: Partial<SubmissionFormValues> = {
   participationType: undefined,
@@ -85,17 +85,44 @@ export function AbstractSubmissionForm() {
   const participationType = form.watch("participationType");
 
   async function onSubmit(data: SubmissionFormValues) {
-    console.log(data);
-    toast({
-      title: "Submission Received!",
-      description: "Your abstract has been successfully submitted. We will review it and get back to you.",
-      variant: "default",
-    });
-    form.reset();
+    form.formState.isSubmitting = true;
+    try {
+      const response = await fetch('/api/submit-abstract', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Submission Received!",
+          description: "Your abstract has been successfully submitted. We will review it and get back to you.",
+          variant: "default",
+        });
+        form.reset();
+      } else {
+        const errorData = await response.json();
+        toast({
+          title: "Submission Error",
+          description: errorData.message || "An error occurred while submitting your abstract. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Network Error",
+        description: "Could not connect to the server. Please check your internet connection and try again.",
+        variant: "destructive",
+      });
+    } finally {
+       form.formState.isSubmitting = false;
+    }
   }
 
   return (
-    <Card>
+    <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out">
       <CardHeader>
         <CardTitle className="text-2xl text-center">Submission Details</CardTitle>
       </CardHeader>
@@ -110,7 +137,13 @@ export function AbstractSubmissionForm() {
                   <FormLabel>Participation Type*</FormLabel>
                   <FormControl>
                     <RadioGroup
-                      onValueChange={field.onChange}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        if (value === 'solo') {
+                          form.setValue('teamName', '');
+                          form.setValue('teamMembers', []);
+                        }
+                      }}
                       defaultValue={field.value}
                       className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4"
                     >
@@ -227,14 +260,14 @@ export function AbstractSubmissionForm() {
                       variant="destructive"
                       size="icon"
                       onClick={() => remove(index)}
-                      className="mt-auto sm:mt-6" // Adjust margin for alignment
+                      className="mt-auto sm:mt-6" 
                       aria-label="Remove team member"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 ))}
-                {fields.length < 3 && ( // Max 3 additional members
+                {fields.length < 3 && ( 
                   <Button
                     type="button"
                     variant="outline"
@@ -250,7 +283,6 @@ export function AbstractSubmissionForm() {
               </div>
             )}
             
-            {/* Existing fields below */}
             <FormField
               control={form.control}
               name="concept"
