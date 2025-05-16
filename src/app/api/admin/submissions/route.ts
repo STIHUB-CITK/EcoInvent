@@ -13,6 +13,27 @@ interface ConnectDbResult {
   dbNotFound: boolean;
 }
 
+interface TeamMember {
+  name: string;
+  email: string;
+}
+interface SubmissionFromDb {
+  id: number;
+  participationType: 'solo' | 'team';
+  contactPersonName: string;
+  mobileNumber: string;
+  email: string;
+  teamName?: string | null;
+  concept: string;
+  objective: string;
+  requirements: string;
+  technicalApplications: string;
+  slidesLink: string;
+  submissionTimestamp: string;
+  teamMembers?: TeamMember[]; // To hold fetched team members
+}
+
+
 function connectDb(): ConnectDbResult {
   if (!fs.existsSync(dbDir)) {
     console.warn(`Database directory ${dbDir} does not exist. Admin panel will show no data as the directory is missing.`);
@@ -24,11 +45,10 @@ function connectDb(): ConnectDbResult {
   }
   try {
     const instance = new Database(dbPath, { readonly: true });
-    // console.log('Connected to SQLite database for reading submissions at', dbPath);
     return { db: instance, dbNotFound: false };
   } catch (error) {
     console.error('Failed to connect to SQLite database for reading:', error);
-    return { db: null, dbNotFound: false }; // dbNotFound is false because it's a connection error, not a file not found error.
+    return { db: null, dbNotFound: false };
   }
 }
 
@@ -36,40 +56,53 @@ export async function GET(request: NextRequest) {
   const { db: currentDb, dbNotFound } = connectDb();
 
   if (dbNotFound) {
-    // If the DB file/dir specifically wasn't found, it's likely not initialized yet.
-    // Return empty submissions, which is a valid state for the frontend to handle.
     return NextResponse.json({ submissions: [] }, { status: 200 });
   }
 
   if (!currentDb) {
-    // This implies a connection error other than the file not being found (e.g., corrupted file, permissions).
     return NextResponse.json({ message: 'Database connection failed.' }, { status: 500 });
   }
 
   try {
-    // Query to get all submissions and count of team members for each
-    const stmt = currentDb.prepare(`
+    const submissionsStmt = currentDb.prepare(`
       SELECT 
-        s.id,
-        s.participationType,
-        s.contactPersonName,
-        s.mobileNumber,
-        s.email,
-        s.teamName,
-        s.concept,
-        s.objective,
-        s.requirements,
-        s.technicalApplications,
-        s.slidesLink,
-        s.submissionTimestamp,
-        (SELECT COUNT(*) FROM TeamMembers tm WHERE tm.submissionId = s.id) as teamMemberCount
-      FROM Submissions s
-      ORDER BY s.submissionTimestamp DESC
+        id,
+        participationType,
+        contactPersonName,
+        mobileNumber,
+        email,
+        teamName,
+        concept,
+        objective,
+        requirements,
+        technicalApplications,
+        slidesLink,
+        submissionTimestamp
+      FROM Submissions
+      ORDER BY submissionTimestamp DESC
     `);
-    
-    const submissions = stmt.all();
 
-    return NextResponse.json({ submissions }, { status: 200 });
+    const submissionsFromDb = submissionsStmt.all() as Omit<SubmissionFromDb, 'teamMembers' | 'teamMemberCount'>[];
+
+    const teamMembersStmt = currentDb.prepare(`
+      SELECT name, email FROM TeamMembers WHERE submissionId = ?
+    `);
+
+    const submissionsWithMembers = submissionsFromDb.map(submission => {
+      let teamMembers: TeamMember[] = [];
+      let teamMemberCount = 0;
+      if (submission.participationType === 'team') {
+        teamMembers = teamMembersStmt.all(submission.id) as TeamMember[];
+        teamMemberCount = teamMembers.length;
+      }
+      return {
+        ...submission,
+        teamMembers,
+        teamMemberCount // This is the count of *additional* members excluding the lead
+      };
+    });
+
+    return NextResponse.json({ submissions: submissionsWithMembers }, { status: 200 });
   } catch (error) {
     console.error('Error fetching submissions:', error);
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -77,7 +110,6 @@ export async function GET(request: NextRequest) {
   } finally {
     if (currentDb) {
       currentDb.close();
-      // console.log('Database connection closed for reading submissions.');
     }
   }
 }
