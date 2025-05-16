@@ -32,16 +32,16 @@ const submissionFormSchema = z.object({
     required_error: "Please select your participation type.",
   }),
   contactPersonName: z.string().min(2, { message: "Full name must be at least 2 characters." }),
-  mobileNumber: z.string().min(10, { message: "Please enter a valid mobile number (e.g., 1234567890)."}).max(15, {message: "Mobile number seems too long."}),
+  mobileNumber: z.string().min(10, { message: "Please enter a valid mobile number (e.g., 1234567890)." }).max(15, { message: "Mobile number seems too long." }),
   email: z.string().email({ message: "Please enter a valid email address." }),
-  
+
   teamName: z.string().optional(),
   teamMembers: z.array(teamMemberSchema).max(3, { message: "You can add up to 3 additional team members (total 4 participants)." }).optional(),
 
   concept: z.string().min(50, { message: "Concept description must be at least 50 characters." }).max(1000, { message: "Concept description must be at most 1000 characters." }),
   objective: z.string().min(30, { message: "Objective must be at least 30 characters." }).max(500, { message: "Objective must be at most 500 characters." }),
-  requirements: z.string().min(10, { message: "Please describe requirements."}).max(500, {message: "Requirements description must be at most 500 characters."}),
-  technicalApplications: z.string().min(20, { message: "Technical applications must be at least 20 characters." }).max(500, {message: "Technical applications must be at most 500 characters."}),
+  requirements: z.string().min(10, { message: "Please describe requirements." }).max(500, { message: "Requirements description must be at most 500 characters." }),
+  technicalApplications: z.string().min(20, { message: "Technical applications must be at least 20 characters." }).max(500, { message: "Technical applications must be at most 500 characters." }),
   slidesLink: z.string().url({ message: "Please enter a valid URL for your presentation slides." }),
 }).superRefine((data, ctx) => {
   if (data.participationType === 'team' && (!data.teamName || data.teamName.trim() === "")) {
@@ -194,7 +194,7 @@ export function AbstractSubmissionForm() {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="mobileNumber"
@@ -225,7 +225,7 @@ export function AbstractSubmissionForm() {
 
             {participationType === 'team' && (
               <div className="space-y-4 p-4 border rounded-md">
-                <h3 className="text-lg font-medium">Team Members (Max {fields.length +1}/4)</h3>
+                <h3 className="text-lg font-medium">Team Members (Max {fields.length + 1}/4)</h3>
                 {fields.map((item, index) => (
                   <div key={item.id} className="flex flex-col sm:flex-row gap-4 items-start border-b pb-4 mb-4">
                     <FormField
@@ -259,14 +259,14 @@ export function AbstractSubmissionForm() {
                       variant="destructive"
                       size="icon"
                       onClick={() => remove(index)}
-                      className="mt-auto sm:mt-6" 
+                      className="mt-auto sm:mt-6"
                       aria-label="Remove team member"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 ))}
-                {fields.length < 3 && ( 
+                {fields.length < 3 && (
                   <Button
                     type="button"
                     variant="outline"
@@ -276,12 +276,12 @@ export function AbstractSubmissionForm() {
                     <Icons.Users className="mr-2 h-4 w-4" /> Add Team Member
                   </Button>
                 )}
-                {fields.length >=3 && (
-                    <p className="text-sm text-muted-foreground">Maximum of 3 additional team members reached (total 4 participants).</p>
+                {fields.length >= 3 && (
+                  <p className="text-sm text-muted-foreground">Maximum of 3 additional team members reached (total 4 participants).</p>
                 )}
               </div>
             )}
-            
+
             <FormField
               control={form.control}
               name="concept"
