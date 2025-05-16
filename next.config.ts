@@ -12,10 +12,22 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'startup.assam.gov.in',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'placehold.co',
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'http',
+        hostname: 'smartedge.work',
+        port: '',
+        pathname: '/**',
+      }
     ],
   },
 };
