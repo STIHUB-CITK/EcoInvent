@@ -55,6 +55,7 @@ export default function GuidelinesPage() {
   return (
     <div className="space-y-8">
       <header className="text-center">
+        <Icons.ClipboardCheck className="mx-auto h-16 w-16 text-primary mb-4" />
         <h1 className="text-4xl font-bold text-primary">Participation Guidelines</h1>
         <p className="mt-2 text-lg text-muted-foreground">
           Everything you need to know to participate in EcoInvent 2025.
@@ -81,15 +82,15 @@ export default function GuidelinesPage() {
           );
         })}
       </div>
-       <Card className="mt-8 bg-accent/20">
+       <Card className="mt-8 bg-accent/10 border-accent/50 shadow-lg">
         <CardHeader>
-          <CardTitle className="text-2xl text-accent-foreground flex items-center">
+          <CardTitle className="text-2xl text-accent flex items-center">
             <Icons.Sparkles className="h-8 w-8 text-accent mr-3" />
             Important Note
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-accent-foreground/90">
+          <p className="text-accent/90">
             All submissions must be original work. Plagiarism will lead to disqualification.
             Ensure your project aligns with ethical considerations and promotes sustainability.
             We look forward to your innovative solutions!
