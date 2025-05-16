@@ -21,6 +21,8 @@ import {
   Brain,
   Images, // Added for Gallery
   Handshake, // Added for Collaborators
+  UserCircle, // Added for Admin Login
+  LogOut, // Added for Admin Logout
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -47,4 +49,6 @@ export const Icons = {
   Brain, // for AI refiner
   Images, // For Gallery page
   Handshake, // For Collaborators section
+  UserCircle,
+  LogOut,
 };
