@@ -3,6 +3,13 @@ import { ideathonCategories, worldEnvironmentDayTheme, siteConfig } from "@/conf
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 export default function HomePage() {
   return (
@@ -29,6 +36,31 @@ export default function HomePage() {
             </Link>
           </Button>
         </div>
+      </section>
+
+      <section className="py-10">
+        <h2 className="text-3xl font-bold text-center mb-10 text-primary">
+          Explore Our Themes
+        </h2>
+        <Carousel
+          opts={{
+            align: "start",
+            loop: true,
+          }}
+          className="w-full max-w-xs sm:max-w-xl md:max-w-3xl lg:max-w-5xl mx-auto"
+        >
+          <CarouselContent>
+            {ideathonCategories.map((category, index) => (
+              <CarouselItem key={index} className="sm:basis-1/2 lg:basis-1/3">
+                <div className="p-1 h-full">
+                  <CategoryCard category={category} />
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious />
+          <CarouselNext />
+        </Carousel>
       </section>
 
       <section>
