@@ -61,7 +61,7 @@ export default function ShortlistingInfoPage() {
         {shortlistingSteps.map((step) => {
           const IconComponent = Icons[step.iconName as keyof typeof Icons || "HelpCircle"];
           return (
-            <AccordionItem value={step.id} key={step.id} className="border bg-card rounded-lg shadow-md hover:shadow-lg transition-shadow">
+            <AccordionItem value={step.id} key={step.id} className="border bg-card rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out">
               <AccordionTrigger className="p-6 text-xl font-semibold hover:no-underline">
                 <div className="flex items-center space-x-3">
                   <IconComponent className="h-7 w-7 text-primary" />
@@ -81,7 +81,7 @@ export default function ShortlistingInfoPage() {
         })}
       </Accordion>
 
-      <Card className="mt-8 bg-primary/10 shadow-lg">
+      <Card className="mt-8 bg-primary/10">
         <CardHeader>
           <CardTitle className="text-2xl text-primary flex items-center">
             <Icons.Sparkles className="h-8 w-8 text-primary mr-3" />

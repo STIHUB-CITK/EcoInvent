@@ -42,7 +42,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="text-center py-10 bg-card rounded-lg shadow-md">
+      <section className="text-center py-10 bg-card rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out">
         <h2 className="text-3xl font-bold mb-4 text-primary">Ready to Innovate?</h2>
         <p className="text-lg text-foreground/80 mb-6 max-w-xl mx-auto">
           Join us in creating a sustainable future. Your ideas can make a difference.

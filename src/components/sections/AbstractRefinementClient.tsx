@@ -84,7 +84,7 @@ export function AbstractRefinementClient({ categories }: AbstractRefinementClien
   }
 
   return (
-    <Card className="shadow-xl">
+    <Card>
       <CardHeader>
         <CardTitle className="text-2xl text-center">Refine Your Abstract</CardTitle>
       </CardHeader>

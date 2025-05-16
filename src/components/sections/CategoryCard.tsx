@@ -11,7 +11,7 @@ export function CategoryCard({ category }: CategoryCardProps) {
   const IconComponent = Icons[category.iconName] || Icons.HelpCircle;
 
   return (
-    <Card className="flex flex-col h-full overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+    <Card className="flex flex-col h-full overflow-hidden group">
       <CardHeader className="p-4">
         <div className="flex items-center space-x-3">
           <IconComponent className="h-8 w-8 text-primary" />

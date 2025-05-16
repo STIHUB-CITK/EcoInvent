@@ -65,7 +65,7 @@ export default function GuidelinesPage() {
         {guidelines.map((section) => {
           const IconComponent = Icons[section.icon as keyof typeof Icons] || Icons.HelpCircle;
           return (
-            <Card key={section.title} className="shadow-lg">
+            <Card key={section.title}>
               <CardHeader className="flex flex-row items-center space-x-3">
                 <IconComponent className="h-8 w-8 text-primary" />
                 <CardTitle className="text-2xl">{section.title}</CardTitle>
@@ -81,7 +81,7 @@ export default function GuidelinesPage() {
           );
         })}
       </div>
-       <Card className="mt-8 bg-accent/20 shadow-lg">
+       <Card className="mt-8 bg-accent/20">
         <CardHeader>
           <CardTitle className="text-2xl text-accent-foreground flex items-center">
             <Icons.Sparkles className="h-8 w-8 text-accent mr-3" />

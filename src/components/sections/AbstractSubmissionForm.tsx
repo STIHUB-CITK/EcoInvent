@@ -64,7 +64,7 @@ export function AbstractSubmissionForm() {
   }
 
   return (
-    <Card className="shadow-xl">
+    <Card>
       <CardHeader>
         <CardTitle className="text-2xl text-center">Submission Details</CardTitle>
       </CardHeader>
