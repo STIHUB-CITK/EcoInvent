@@ -28,7 +28,13 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { format } from 'date-fns'; // For date formatting
+import { Separator } from '@/components/ui/separator';
 
+
+interface TeamMember {
+  name: string;
+  email: string;
+}
 // Define the type for a single submission, matching the API response
 interface Submission {
   id: number;
@@ -43,7 +49,8 @@ interface Submission {
   technicalApplications: string;
   slidesLink: string;
   submissionTimestamp: string; // Assuming it's an ISO string
-  teamMemberCount: number;
+  teamMemberCount: number; // Count of *additional* members (excluding lead)
+  teamMembers?: TeamMember[]; // Details of *additional* members
 }
 
 export default function AdminSubmissionsPage() {
@@ -99,31 +106,58 @@ export default function AdminSubmissionsPage() {
       return;
     }
 
+    // Define the maximum number of team members from the data to create dynamic headers
+    const maxTeamMembers = submissions.reduce((max, s) =>
+      s.teamMembers && s.teamMembers.length > max ? s.teamMembers.length : max,
+      0);
+
     const headers = [
       "ID", "Participation Type", "Contact Name", "Mobile", "Email", "Team Name",
-      "Team Member Count", "Concept", "Objective", "Requirements", "Tech Applications",
+      "Total Team Size", // Calculated: lead + teamMemberCount
+      "Concept", "Objective", "Requirements", "Tech Applications",
       "Slides Link", "Submission Timestamp"
     ];
-    
+
+    for (let i = 1; i <= maxTeamMembers; i++) {
+      headers.push(`Member ${i + 1} Name`, `Member ${i + 1} Email`);
+    }
+
     const csvRows = [
       headers.join(','),
-      ...submissions.map(s => [
-        s.id,
-        s.participationType,
-        `"${s.contactPersonName.replace(/"/g, '""')}"`,
-        s.mobileNumber,
-        s.email,
-        s.teamName ? `"${s.teamName.replace(/"/g, '""')}"` : '',
-        s.participationType === 'team' ? s.teamMemberCount + 1 : 1, // Adjust team member count for solo vs team as per submission form
-        `"${s.concept.replace(/"/g, '""')}"`,
-        `"${s.objective.replace(/"/g, '""')}"`,
-        `"${s.requirements.replace(/"/g, '""')}"`,
-        `"${s.technicalApplications.replace(/"/g, '""')}"`,
-        s.slidesLink,
-        format(new Date(s.submissionTimestamp), "yyyy-MM-dd HH:mm:ss")
-      ].join(','))
+      ...submissions.map(s => {
+        const rowData = [
+          s.id,
+          s.participationType,
+          `"${s.contactPersonName.replace(/"/g, '""')}"`,
+          s.mobileNumber,
+          s.email,
+          s.teamName ? `"${s.teamName.replace(/"/g, '""')}"` : '',
+          s.participationType === 'team' ? s.teamMemberCount + 1 : 1, // Total team size
+          `"${s.concept.replace(/"/g, '""')}"`,
+          `"${s.objective.replace(/"/g, '""')}"`,
+          `"${s.requirements.replace(/"/g, '""')}"`,
+          `"${s.technicalApplications.replace(/"/g, '""')}"`,
+          s.slidesLink,
+          format(new Date(s.submissionTimestamp), "yyyy-MM-dd HH:mm:ss")
+        ];
+
+        if (s.participationType === 'team' && s.teamMembers) {
+          for (let i = 0; i < maxTeamMembers; i++) {
+            if (s.teamMembers[i]) {
+              rowData.push(`"${s.teamMembers[i].name.replace(/"/g, '""')}"`, s.teamMembers[i].email);
+            } else {
+              rowData.push('', ''); // Empty cells if member doesn't exist
+            }
+          }
+        } else {
+          for (let i = 0; i < maxTeamMembers; i++) {
+            rowData.push('', '');
+          }
+        }
+        return rowData.join(',');
+      })
     ];
-    
+
     const csvString = csvRows.join('\n');
     const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -138,7 +172,7 @@ export default function AdminSubmissionsPage() {
       URL.revokeObjectURL(url);
       toast({ title: 'Export Successful', description: 'Submissions exported as CSV.' });
     } else {
-       toast({ title: 'Export Failed', description: 'Your browser does not support this export method.', variant: 'destructive'});
+      toast({ title: 'Export Failed', description: 'Your browser does not support this export method.', variant: 'destructive' });
     }
   };
 
@@ -164,7 +198,7 @@ export default function AdminSubmissionsPage() {
               <CardDescription>View and manage EcoInvent submissions.</CardDescription>
             </div>
             <div className="space-x-2">
-               <Button onClick={handleExportData} variant="outline">
+              <Button onClick={handleExportData} variant="outline">
                 <Icons.FileText className="mr-2 h-4 w-4" />
                 Export Data (CSV)
               </Button>
@@ -223,9 +257,9 @@ export default function AdminSubmissionsPage() {
                         {format(new Date(submission.submissionTimestamp), 'PPpp')}
                       </TableCell>
                       <TableCell className="text-center">
-                         <Button variant="ghost" size="sm" onClick={() => handleViewSubmission(submission)}>
-                           View
-                         </Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleViewSubmission(submission)}>
+                          View
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -245,7 +279,7 @@ export default function AdminSubmissionsPage() {
                 Detailed information for submission by {selectedSubmission.contactPersonName}.
               </DialogDescription>
             </DialogHeader>
-            <ScrollArea className="max-h-[60vh] pr-4">
+            <ScrollArea className="max-h-[70vh] pr-4">
               <div className="grid gap-4 py-4 text-sm">
                 <div className="grid grid-cols-[150px_1fr] items-center gap-2">
                   <span className="font-semibold text-muted-foreground">Participation Type:</span>
@@ -253,30 +287,57 @@ export default function AdminSubmissionsPage() {
                     {selectedSubmission.participationType}
                   </Badge>
                 </div>
-                {selectedSubmission.participationType === 'team' && selectedSubmission.teamName && (
-                  <div className="grid grid-cols-[150px_1fr] items-center gap-2">
-                    <span className="font-semibold text-muted-foreground">Team Name:</span>
-                    <span>{selectedSubmission.teamName}</span>
-                  </div>
-                )}
+
                 <div className="grid grid-cols-[150px_1fr] items-center gap-2">
-                  <span className="font-semibold text-muted-foreground">Contact Person:</span>
+                  <span className="font-semibold text-muted-foreground">
+                    {selectedSubmission.participationType === 'team' ? 'Team Lead Name:' : 'Contact Name:'}
+                  </span>
                   <span>{selectedSubmission.contactPersonName}</span>
                 </div>
                 <div className="grid grid-cols-[150px_1fr] items-center gap-2">
-                  <span className="font-semibold text-muted-foreground">Email:</span>
+                  <span className="font-semibold text-muted-foreground">
+                    {selectedSubmission.participationType === 'team' ? 'Team Lead Email:' : 'Contact Email:'}
+                  </span>
                   <a href={`mailto:${selectedSubmission.email}`} className="text-primary hover:underline">{selectedSubmission.email}</a>
                 </div>
                 <div className="grid grid-cols-[150px_1fr] items-center gap-2">
-                  <span className="font-semibold text-muted-foreground">Mobile Number:</span>
+                  <span className="font-semibold text-muted-foreground">
+                    {selectedSubmission.participationType === 'team' ? 'Team Lead Mobile:' : 'Contact Mobile:'}
+                  </span>
                   <span>{selectedSubmission.mobileNumber}</span>
                 </div>
-                <div className="grid grid-cols-[150px_1fr] items-center gap-2">
-                  <span className="font-semibold text-muted-foreground">Total Members:</span>
-                  <span>{selectedSubmission.participationType === 'team' ? selectedSubmission.teamMemberCount + 1 : 1}</span>
-                </div>
-                
-                <div className="mt-4 pt-4 border-t">
+
+                {selectedSubmission.participationType === 'team' && (
+                  <>
+                    {selectedSubmission.teamName && (
+                      <div className="grid grid-cols-[150px_1fr] items-center gap-2">
+                        <span className="font-semibold text-muted-foreground">Team Name:</span>
+                        <span>{selectedSubmission.teamName}</span>
+                      </div>
+                    )}
+                    <div className="grid grid-cols-[150px_1fr] items-start gap-2">
+                      <span className="font-semibold text-muted-foreground mt-1">Total Team Size:</span>
+                      <span>{selectedSubmission.teamMemberCount + 1}</span>
+                    </div>
+                    {(selectedSubmission.teamMembers && selectedSubmission.teamMembers.length > 0) && (
+                      <div className="mt-2 pt-2 border-t">
+                        <h4 className="font-semibold text-muted-foreground mb-2">Additional Team Members:</h4>
+                        <div className="space-y-2 pl-4">
+                          {selectedSubmission.teamMembers.map((member, index) => (
+                            <div key={index} className="p-2 rounded-md border bg-muted/30">
+                              <p><strong>Name:</strong> {member.name}</p>
+                              <p><strong>Email:</strong> <a href={`mailto:${member.email}`} className="text-primary hover:underline">{member.email}</a></p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                <Separator className="my-3" />
+
+                <div>
                   <h4 className="font-semibold text-muted-foreground mb-2">Concept:</h4>
                   <p className="whitespace-pre-wrap bg-muted/50 p-3 rounded-md">{selectedSubmission.concept}</p>
                 </div>
@@ -292,14 +353,16 @@ export default function AdminSubmissionsPage() {
                   <h4 className="font-semibold text-muted-foreground mb-2">Technical Applications:</h4>
                   <p className="whitespace-pre-wrap bg-muted/50 p-3 rounded-md">{selectedSubmission.technicalApplications}</p>
                 </div>
-                
-                <div className="mt-2 pt-2 border-t grid grid-cols-[150px_1fr] items-center gap-2">
+
+                <Separator className="my-3" />
+
+                <div className="grid grid-cols-[150px_1fr] items-center gap-2">
                   <span className="font-semibold text-muted-foreground">Slides Link:</span>
                   <a href={selectedSubmission.slidesLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline truncate">
                     {selectedSubmission.slidesLink}
                   </a>
                 </div>
-                <div className="mt-2 pt-2 border-t grid grid-cols-[150px_1fr] items-center gap-2">
+                <div className="grid grid-cols-[150px_1fr] items-center gap-2">
                   <span className="font-semibold text-muted-foreground">Submitted At:</span>
                   <span>{format(new Date(selectedSubmission.submissionTimestamp), 'PPPppp')}</span>
                 </div>
