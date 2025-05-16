@@ -27,8 +27,12 @@ const loginFormSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginFormSchema>;
 
-const MOCK_EMAIL = "admin@ecoinvent.in";
-const MOCK_PASSWORD = "password"; // In a real app, never hardcode passwords!
+// Default credentials if environment variables are not set
+const DEFAULT_ADMIN_EMAIL = "admin@ecoinvent.in";
+const DEFAULT_ADMIN_PASSWORD = "password";
+
+const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL || DEFAULT_ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD;
 
 export default function AdminLoginPage() {
   const { toast } = useToast();
@@ -52,7 +56,7 @@ export default function AdminLoginPage() {
   });
 
   async function onSubmit(data: LoginFormValues) {
-    if (data.email === MOCK_EMAIL && data.password === MOCK_PASSWORD) {
+    if (data.email === ADMIN_EMAIL && data.password === ADMIN_PASSWORD) {
       localStorage.setItem("isAdminLoggedIn", "true");
       toast({
         title: "Login Successful",
@@ -119,7 +123,14 @@ export default function AdminLoginPage() {
             </form>
           </Form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
-            Use: <code className="bg-muted px-1 py-0.5 rounded">admin@ecoinvent.in</code> / <code className="bg-muted px-1 py-0.5 rounded">password</code>
+            Login credentials are set via environment variables.
+            {!process.env.NEXT_PUBLIC_ADMIN_EMAIL && !process.env.NEXT_PUBLIC_ADMIN_PASSWORD && (
+              <>
+                <br />
+                Default test credentials:
+                <code className="ml-1 bg-muted px-1 py-0.5 rounded">{DEFAULT_ADMIN_EMAIL}</code> / <code className="bg-muted px-1 py-0.5 rounded">{DEFAULT_ADMIN_PASSWORD}</code>
+              </>
+            )}
           </p>
         </CardContent>
       </Card>
