@@ -1,8 +1,11 @@
-
 import Image from "next/image";
 import { CategoryCard } from "@/components/sections/CategoryCard";
 import { CollaboratorsSection } from "@/components/sections/CollaboratorsSection";
-import { ideathonCategories, worldEnvironmentDayTheme, siteConfig } from "@/config/site";
+import {
+  ideathonCategories,
+  worldEnvironmentDayTheme,
+  siteConfig,
+} from "@/config/site";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -23,21 +26,40 @@ export default function HomePage() {
           {/* Left Column: Text Content */}
           <div className="text-left">
             <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl md:text-6xl">
-              Innovate for a <span className="text-primary">Greener Future</span>
+              Innovate for a{" "}
+              <span className="text-primary">Greener Future</span>
             </h1>
             <p className="mt-6 text-lg leading-relaxed text-foreground/80 sm:text-xl max-w-xl">
-              Join {siteConfig.name}'s 2025 Ideathon, focused on the critical theme of <span className="font-semibold text-accent">{worldEnvironmentDayTheme}</span>. Submit your pioneering ideas and help shape a sustainable world.
+              Join {siteConfig.name}'s 2025 Ideathon. <br /> On the occasion of
+              World Environment Day, June 5, 2025, STIHUB at CIT Kokrajhar
+              invites young minds to develop innovative, eco-friendly solutions
+              for a sustainable future. This initiative aims to spark impactful
+              ideas in areas like food, fashion, and tourism- driving change
+              through creativity and conscious innovation, primarily focused on
+              this year's theme of{" "}
+              <span className="font-semibold text-accent">
+                {worldEnvironmentDayTheme}
+              </span>
+              . <br />
+              Submit your pioneering ideas and help shape a sustainable world.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-start gap-4">
-              <Button asChild size="lg" className="shadow-md hover:shadow-lg transition-shadow">
+              <Button
+                asChild
+                size="lg"
+                className="shadow-md hover:shadow-lg transition-shadow"
+              >
                 <Link href="/submit-abstract">
                   Submit Your Idea <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="shadow-md hover:shadow-lg transition-shadow">
-                <Link href="/guidelines">
-                  View Guidelines
-                </Link>
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="shadow-md hover:shadow-lg transition-shadow"
+              >
+                <Link href="/guidelines">View Guidelines</Link>
               </Button>
             </div>
           </div>
@@ -84,11 +106,18 @@ export default function HomePage() {
       <CollaboratorsSection />
 
       <section className="text-center py-16 bg-card rounded-xl shadow-xl hover:shadow-2xl transition-shadow duration-300 ease-in-out">
-        <h2 className="text-3xl font-bold mb-4 text-primary">Ready to Innovate?</h2>
+        <h2 className="text-3xl font-bold mb-4 text-primary">
+          Ready to Innovate?
+        </h2>
         <p className="text-lg text-foreground/80 mb-6 max-w-xl mx-auto">
-          Join us in creating a sustainable future. Your ideas can make a difference.
+          Join us in creating a sustainable future. Your ideas can make a
+          difference.
         </p>
-        <Button asChild size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 shadow-md hover:shadow-lg transition-shadow">
+        <Button
+          asChild
+          size="lg"
+          className="bg-accent text-accent-foreground hover:bg-accent/90 shadow-md hover:shadow-lg transition-shadow"
+        >
           <Link href="/refine-abstract">
             Refine Your Abstract with AI <ArrowRight className="ml-2 h-5 w-5" />
           </Link>
